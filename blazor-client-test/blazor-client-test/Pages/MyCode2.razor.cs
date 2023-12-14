@@ -51,14 +51,14 @@ namespace blazor_client_test.Pages {
             // data: 1 = snake, 2 = snake head, 3 = food
             private List<((int, int), int)> snakeCoordsList = new();
             public char lastKey = 'w';
-            private int lastSnakeUpdateCountdown = 0;
             private void CreateFood() {
 
             }
             public void UpdateSnake(bool manual = false) {
-                if (manual) lastSnakeUpdateCountdown = 3;
-                if (lastSnakeUpdateCountdown > 0) lastSnakeUpdateCountdown--;
-                if (!manual && lastSnakeUpdateCountdown > 0) return;
+                if (manual) {
+                    updateSnakeTimer.Stop();
+                    updateSnakeTimer.Start();
+                }
                 var prevHeadCoords = snakeCoordsList.Where(x => x.Item2 == 2).First().Item1;
                 snakeCoordsList.Remove((prevHeadCoords, 2));
                 snakeCoordsList.Add((prevHeadCoords, 1));
@@ -92,11 +92,12 @@ namespace blazor_client_test.Pages {
                     }
                 }
             }
+            public System.Timers.Timer updateSnakeTimer;
         }
 
         private SnakeGame snakeGame = new((snakeArraySize, snakeArraySize));
         private void OnPageLoad() {
-            App.CreateTimer(() => {
+            snakeGame.updateSnakeTimer = App.CreateTimer(() => {
                 snakeGame.UpdateSnake();
                 InvokeAsync(StateHasChanged);
             }, 200);

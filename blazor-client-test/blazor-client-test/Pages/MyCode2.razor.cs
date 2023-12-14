@@ -56,6 +56,8 @@ namespace blazor_client_test.Pages {
 				int randY = new Random().Next(0, gameSize.Item2 + 1);
 				if (!snakeCoordsList.Where(x => x.Item1 == (randX, randY)).Any()) {
 					snakeCoordsList.Add(((randX, randY), 3));
+					JSRuntime.InvokeVoidAsync("console.log", "placed!");
+					UpdateRender();
 				} else {
 					CreateFood();
 				}
@@ -67,6 +69,8 @@ namespace blazor_client_test.Pages {
 				if (coordData == 3) strOut += "eatFood,";
 				return strOut;
 			}
+
+			public Action UpdateRender = () => { };
 
 			public void UpdateSnake(bool manual = false) {
 				if (manual) {
@@ -133,12 +137,13 @@ namespace blazor_client_test.Pages {
 
 		private SnakeGame snakeGame = new((snakeArraySize, snakeArraySize));
 		private void OnPageLoad() {
+			snakeGame.UpdateRender = () => { InvokeAsync(StateHasChanged); };
 			snakeGame.updateSnakeTimer = App.CreateTimer(() => {
 				snakeGame.UpdateSnake();
-				InvokeAsync(StateHasChanged);
-			}, 200);
+				snakeGame.UpdateRender();
+			}, 1000);
 			snakeGame.UpdateSnake();
-			InvokeAsync(StateHasChanged);
+			snakeGame.UpdateRender();
 		}
 	}
 }

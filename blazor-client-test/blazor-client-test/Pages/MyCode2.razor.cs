@@ -7,11 +7,14 @@ namespace blazor_client_test.Pages {
 		[Inject]
 		public IJSRuntime? JSRuntime { get; set; }
 		private static string textOut = "";
-		private static int snakeArraySize = 50;
+		private static int snakeArraySize = 30;
 		private void UpdateLastKey(KeyboardEventArgs e) {
 			string key = e.Key;
 			if (key.Length > 1) goto end;
 			char keyChar = key.ToLower().ToCharArray()[0];
+			if (keyChar == snakeGame.lastKey) {
+				goto end;
+			}
 			switch (keyChar) {
 				case 'w' or 'a' or 's' or 'd':
 					var oppositeKeys = new Dictionary<char, char> {
@@ -23,7 +26,7 @@ namespace blazor_client_test.Pages {
 					reversed = null;
 					if (oppositeKeys[keyChar] == snakeGame.lastKey) goto end;
 					snakeGame.lastKey = keyChar;
-					//JSRuntime.InvokeVoidAsync("console.log", keyChar.ToString());
+					snakeGame.updateSnake();
 					break;
 			}
 		end:
@@ -32,12 +35,14 @@ namespace blazor_client_test.Pages {
 
 		private class SnakeGame {
 			private static (int, int) gameSize = (0, 0);
-			public SnakeGame((int, int) gameSizeArg) {
-				gameSize = gameSizeArg;
+			public SnakeGame((int, int) aGameSize) {
+				gameSize = aGameSize;
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
 				try {
-					snakeCoordsList.Add(((gameSize.Item1 / 2, (int)(gameSize.Item2 / 1.5)), 2));
-					snakeCoordsList.Add(((gameSize.Item1 / 2, (int)(gameSize.Item2 / 1.5) - 1), 1));
+					int initialSnakeSize = (int)(gameSize.Item2 * 0.2);
+					for (int i = 0; i < initialSnakeSize; i++) {
+						snakeCoordsList.Add(((gameSize.Item1 / 2, (int)(gameSize.Item2 / 1.5) - i), (i == initialSnakeSize - 1) ? 2 : 1));
+					}
 				} catch (Exception) { }
 
 			}
@@ -72,8 +77,10 @@ namespace blazor_client_test.Pages {
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
 				for (int i = 0; i < snakeArray.GetLength(0); i++) {
 					for (int j = 0; j < snakeArray.GetLength(1); j++) {
-						if (snakeCoordsList.Contains(((i, j), 1)) || snakeCoordsList.Contains(((i, j), 2))) {
+						if (snakeCoordsList.Contains(((i, j), 1))) {
 							snakeArray[i, j] = 1;
+						} else if (snakeCoordsList.Contains(((i, j), 2))) {
+							snakeArray[i, j] = 2;
 						}
 					}
 				}
@@ -85,7 +92,7 @@ namespace blazor_client_test.Pages {
 			App.CreateTimer(() => {
 				snakeGame.updateSnake();
 				InvokeAsync(StateHasChanged);
-			}, 100);
+			}, 200);
 			snakeGame.updateSnake();
 			InvokeAsync(StateHasChanged);
 		}

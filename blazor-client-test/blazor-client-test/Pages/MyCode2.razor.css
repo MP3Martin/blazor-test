@@ -1,0 +1,17 @@
+.snake-grid-container {
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    grid-template-rows: repeat(30, 1fr);
+    grid-gap: 1.6px;
+    width: 70vh;
+    height: 70vh;
+    max-width: 80vw;
+    max-height: 80vw;
+    margin-bottom: 1rem;
+}
+
+.snake-grid-container > div {
+    text-align: center;
+    aspect-ratio: 1;
+    width: auto;
+}

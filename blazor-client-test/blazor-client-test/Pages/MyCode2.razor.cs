@@ -14,6 +14,13 @@ namespace blazor_client_test.Pages {
 		}
 
 		private int[,] snakeArray = new int[30, 30];
+		public void start() {
+			for (int i = 0; i < snakeArray.GetLength(0); i++) {
+				for (int j = 0; j < snakeArray.GetLength(1); j++) {
+					snakeArray[i, j] = new Random().Next(0, 1 + 1);
+				}
+			}
 
+		}
 	}
 }

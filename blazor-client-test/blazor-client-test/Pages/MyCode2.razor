@@ -8,19 +8,24 @@
 
 @* <button class="btn btn-primary" @onclick="update">Update</button> *@
 
-<div>
+<div class="snake-grid-container">
 	@for (int i = 0; i < snakeArray.GetLength(0); i++) {
 		@for (int j = 0; j < snakeArray.GetLength(1); j++) {
 			int valueData = snakeArray[i, j];
-		}
-		if (i != snakeArray.GetLength(0) -1) {
-			<br />
+			var colors = new Dictionary<int, string> { 
+				{ 1, "white" },
+				{ 0, "#393939" }
+			};
+			string color = colors[valueData];
+			<div style="background-color: @(color) !important;" />
 		}
 	}
 </div>
 
 <input @onkeydown="changeDirection" id="snake_control_input" />
+<div style="margin-bottom: 1rem;" />
 
 @code {
 	private string title = "Snake";
+	snakeArray;
 }

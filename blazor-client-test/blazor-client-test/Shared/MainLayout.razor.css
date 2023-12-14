@@ -19,6 +19,9 @@ main {
     height: 3.5rem;
     display: flex;
     align-items: center;
+
+    /* custom */
+    background-color: color-mix(in srgb, Canvas 80%, black) !important;
 }
 
     .top-row ::deep a, .top-row ::deep .btn-link {

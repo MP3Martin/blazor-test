@@ -7,7 +7,7 @@ namespace blazor_client_test.Pages {
 		[Inject]
 		public IJSRuntime? JSRuntime { get; set; }
 		private static string textOut = "";
-		private static int snakeArraySize = 30;
+		private static int snakeArraySize = 50;
 		private void UpdateLastKey(KeyboardEventArgs e) {
 			string key = e.Key;
 			if (key.Length > 1) goto end;
@@ -36,33 +36,43 @@ namespace blazor_client_test.Pages {
 				gameSize = gameSizeArg;
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
 				try {
-					snakeCoords.Add(((gameSize.Item1 / 2, gameSize.Item2 / 2), 2));
-					snakeCoords.Add(((gameSize.Item1 / 2, (gameSize.Item2 / 2) - 1), 1));
+					snakeCoordsList.Add(((gameSize.Item1 / 2, (int)(gameSize.Item2 / 1.5)), 2));
+					snakeCoordsList.Add(((gameSize.Item1 / 2, (int)(gameSize.Item2 / 1.5) - 1), 1));
 				} catch (Exception) { }
 
 			}
 			public int[,] snakeArray = new int[gameSize.Item1, gameSize.Item2];
 			// ((snakeX, snakeY), data)
 			// data: 1 = snake, 2 = snake head
-			private List<((int, int), int)> snakeCoords = new();
+			private List<((int, int), int)> snakeCoordsList = new();
 			public char lastKey = 'w';
 			public void updateSnake() {
-				var prevHeadCoords = snakeCoords.Where(x => x.Item2 == 2).First().Item1;
-				snakeCoords.Remove((prevHeadCoords, 2));
-				snakeCoords.Add((prevHeadCoords, 1));
-				snakeCoords.RemoveAt(0);
+				var prevHeadCoords = snakeCoordsList.Where(x => x.Item2 == 2).First().Item1;
+				snakeCoordsList.Remove((prevHeadCoords, 2));
+				snakeCoordsList.Add((prevHeadCoords, 1));
+				snakeCoordsList.RemoveAt(0);
 				var directions = new Dictionary<char, (int, int)> {
 					{ 'w', (0, -1)},
 					{ 'a', (-1, 0)},
 					{ 's', (0, 1)},
-					{ 'd', (1, 0)},
+					{ 'd', (1, 0)}
 				};
 				var direction = directions[lastKey];
-				snakeCoords.Add(((prevHeadCoords.Item1 + direction.Item1, prevHeadCoords.Item2 + direction.Item2), 2));
+				var newCoords = (prevHeadCoords.Item1 + direction.Item1, prevHeadCoords.Item2 + direction.Item2);
+				if (newCoords.Item1 >= gameSize.Item1) {
+					newCoords.Item1 = 0;
+				} else if (newCoords.Item2 >= gameSize.Item2) {
+					newCoords.Item2 = 0;
+				} else if (newCoords.Item1 < 0) {
+					newCoords.Item1 = gameSize.Item1 - 1;
+				} else if (newCoords.Item2 < 0) {
+					newCoords.Item2 = gameSize.Item2 - 1;
+				}
+				snakeCoordsList.Add((newCoords, 2));
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
 				for (int i = 0; i < snakeArray.GetLength(0); i++) {
 					for (int j = 0; j < snakeArray.GetLength(1); j++) {
-						if (snakeCoords.Contains(((i, j), 1)) || snakeCoords.Contains(((i, j), 2))) {
+						if (snakeCoordsList.Contains(((i, j), 1)) || snakeCoordsList.Contains(((i, j), 2))) {
 							snakeArray[i, j] = 1;
 						}
 					}
@@ -76,6 +86,8 @@ namespace blazor_client_test.Pages {
 				snakeGame.updateSnake();
 				InvokeAsync(StateHasChanged);
 			}, 100);
+			snakeGame.updateSnake();
+			InvokeAsync(StateHasChanged);
 		}
 	}
 }

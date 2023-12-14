@@ -25,24 +25,28 @@ namespace blazor_client_test.Pages {
 			public SnakeGame((int, int) gameSizeArg) {
 				gameSize = gameSizeArg;
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
-				snakeCoords.Add(((gameSize.Item1 / 2, gameSize.Item2 / 2), 1));
+				try {
+					snakeCoords.Add(((gameSize.Item1 / 2, gameSize.Item2 / 2), 2));
+					snakeCoords.Add(((gameSize.Item1 / 2, (gameSize.Item2 / 2) - 1), 1));
+				} catch (Exception) { }
+
 			}
 			public int[,] snakeArray = new int[gameSize.Item1, gameSize.Item2];
 			// ((snakeX, snakeY), data)
-			// data: 1 = snake
+			// data: 1 = snake, 2 = snake head
 			private List<((int, int), int)> snakeCoords = new();
 			public char lastKey = new();
 			public void updateSnake() {
-				if (lastKey == 'w') {
-					snakeCoords.Add(((1, 1), 1));
-				} else {
-					snakeCoords.Clear();
-				}
+				//if (lastKey == 'w') {
+				//	snakeCoords.Add(((1, 1), 1));
+				//} else {
+				//	snakeCoords.Clear();
+				//}
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
 				for (int i = 0; i < snakeArray.GetLength(0); i++) {
 					for (int j = 0; j < snakeArray.GetLength(1); j++) {
-						if (snakeCoords.Contains(((i, j), 1))) {
-							snakeArray[i, j] = 1;
+						if (snakeCoords.Contains(((i, j), 1)) || snakeCoords.Contains(((i, j), 2))) {
+							snakeArray[j, i] = 1;
 						}
 					}
 				}

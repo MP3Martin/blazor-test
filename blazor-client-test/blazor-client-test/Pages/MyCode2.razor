@@ -22,10 +22,18 @@
 	}
 </div>
 
-<input @onkeydown="changeDirection" id="snake_control_input" />
+<input @onkeydown="ChangeDirection" id="snake_control_input" />
 <div style="margin-bottom: 1rem;" />
+
+<style>
+	:root {
+		--snake-array-size: @(snakeArraySize);
+	}
+</style>
 
 @code {
 	private string title = "Snake";
-	snakeArray;
+	protected override async Task OnInitializedAsync() {
+		OnPageLoad();
+	}
 }

@@ -1,7 +1,7 @@
 .snake-grid-container {
     display: grid;
-    grid-template-columns: repeat(30, 1fr);
-    grid-template-rows: repeat(30, 1fr);
+    grid-template-columns: repeat(var(--snake-array-size), 1fr);
+    grid-template-rows: repeat(var(--snake-array-size), 1fr);
     grid-gap: 1.6px;
     width: 70vh;
     height: 70vh;

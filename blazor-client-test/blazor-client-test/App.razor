@@ -10,3 +10,14 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    public static void CreateTimer(Action function, int interval) {
+        var Timer = new System.Timers.Timer();
+        Timer.Elapsed += new System.Timers.ElapsedEventHandler((source, e) => {
+            function();
+        });
+        Timer.Interval = interval;
+        Timer.Enabled = true;
+    }
+}

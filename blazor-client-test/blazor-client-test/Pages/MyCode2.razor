@@ -9,9 +9,9 @@
 @* <button class="btn btn-primary" @onclick="update">Update</button> *@
 
 <div class="snake-grid-container">
-	@for (int i = 0; i < snakeArray.GetLength(0); i++) {
-		@for (int j = 0; j < snakeArray.GetLength(1); j++) {
-			int valueData = snakeArray[i, j];
+	@for (int i = 0; i < snakeGame.snakeArray.GetLength(0); i++) {
+		@for (int j = 0; j < snakeGame.snakeArray.GetLength(1); j++) {
+			int valueData = snakeGame.snakeArray[i, j];
 			var colors = new Dictionary<int, string> { 
 				{ 1, "white" },
 				{ 0, "#393939" }

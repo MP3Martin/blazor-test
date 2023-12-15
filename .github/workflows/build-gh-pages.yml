@@ -2,12 +2,16 @@
 
 name: Deploy Blazor WASM to GitHub Pages
 env:
-  PUBLISH_DIR: bin/Release/net6.0/publish/wwwroot
+  PUBLISH_DIR: blazor-client-test/bin/Release/net6.0/publish/wwwroot
 
 # Controls when the action will run
 on:
   push:
     branches: [ main ]
+
+concurrency: 
+  group: build
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -23,10 +27,10 @@ jobs:
     - name: Publish application
       run: dotnet publish -c Release
     
-    - run: pwd
-    - run: sudo apt-get install -y tree
-    - run: tree
-    - run: dir ${{ env.PUBLISH_DIR }}
+#    - run: pwd
+#    - run: sudo apt-get install -y tree
+#    - run: tree
+#    - run: dir ${{ env.PUBLISH_DIR }}
 
     # base href url value should be changed so that resources like CSS and scripts can load properly. 
     - name: Rewrite base href

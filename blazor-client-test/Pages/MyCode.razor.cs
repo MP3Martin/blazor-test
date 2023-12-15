@@ -7,7 +7,7 @@ namespace blazor_client_test.Pages {
 		public IJSRuntime? JSRuntime { get; set; }
 		private string textOut = "";
 		private async void update() {
-			await JSRuntime.InvokeVoidAsync("console.log", "lol");
+			await JSRuntime.InvokeVoidAsync("console.log", "test123");
 			textOut = "";
 			int size = 10;
 			int[] nums = new int[size];
@@ -38,11 +38,12 @@ namespace blazor_client_test.Pages {
 					nums2[i] = nums[i];
 				}
 			}
-			textOut += ("\n\nNové pole:") + "\n";
+			textOut += ("\n\nNew array:") + "\n";
 			foreach (int num in nums2) {
 				textOut += (string.Format("{0, 3}", num));
 				textOut += (" | ");
 			}
+			textOut = "\n" + textOut;
 		}
 
 	}

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\js\MyCode2.js" />
+    <None Include="wwwroot\js\Snake.js" />
   </ItemGroup>
 
   <ItemGroup>

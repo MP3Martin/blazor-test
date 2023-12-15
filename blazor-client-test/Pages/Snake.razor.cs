@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace blazor_client_test.Pages {
-	public partial class MyCode2 {
+	public partial class Snake {
 		[Inject]
 		public IJSRuntime? JSRuntime { get; set; }
 		private static string textOut = "";
@@ -142,7 +142,7 @@ namespace blazor_client_test.Pages {
 			snakeGame.updateSnakeTimer = App.CreateTimer(() => {
 				snakeGame.UpdateSnake();
 				snakeGame.UpdateRender();
-			}, 200);
+			}, 210);
 			snakeGame.UpdateSnake();
 			snakeGame.UpdateRender();
 		}

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace blazor_client_test.Pages {
-	public partial class MyCode {
+	public partial class Arrays {
 		[Inject]
 		public IJSRuntime? JSRuntime { get; set; }
 		private string textOut = "";

@@ -1,5 +1,5 @@
 ﻿clearSnakeControlInput = () => {
-    //setTimeout(() => {
+    setTimeout(() => {
         document.getElementById("snake_control_input").value = "";
-    //}, 1)
+    }, 0)
 }

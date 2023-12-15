@@ -52,11 +52,10 @@ namespace blazor_client_test.Pages {
 			private List<((int, int), int)> snakeCoordsList = new();
 			public char lastKey = 'w';
 			private void CreateFood() {
-				int randX = new Random().Next(0, gameSize.Item1 + 1);
-				int randY = new Random().Next(0, gameSize.Item2 + 1);
+				int randX = new Random().Next(0, gameSize.Item1);
+				int randY = new Random().Next(0, gameSize.Item2);
 				if (!snakeCoordsList.Where(x => x.Item1 == (randX, randY)).Any()) {
 					snakeCoordsList.Add(((randX, randY), 3));
-					JSRuntime.InvokeVoidAsync("console.log", "placed!");
 					UpdateRender();
 				} else {
 					CreateFood();
@@ -114,6 +113,13 @@ namespace blazor_client_test.Pages {
 
 				// add the new head
 				snakeCoordsList.Add((newCoords, 2));
+
+				if (hitDataOutput.Contains("eatFood")) {
+					snakeCoordsList.RemoveAll(x => x.Item2 == 3);
+					CreateFood();
+				}
+
+				// update the snakeArray with snakeCoordsList
 				snakeArray = new int[gameSize.Item1, gameSize.Item2];
 				for (int i = 0; i < snakeArray.GetLength(0); i++) {
 					for (int j = 0; j < snakeArray.GetLength(1); j++) {
@@ -126,11 +132,6 @@ namespace blazor_client_test.Pages {
 						}
 					}
 				}
-
-				if (hitDataOutput.Contains("eatFood")) {
-					snakeCoordsList.RemoveAll(x => x.Item2 == 3);
-					CreateFood();
-				}
 			}
 			public System.Timers.Timer updateSnakeTimer = new();
 		}
@@ -141,7 +142,7 @@ namespace blazor_client_test.Pages {
 			snakeGame.updateSnakeTimer = App.CreateTimer(() => {
 				snakeGame.UpdateSnake();
 				snakeGame.UpdateRender();
-			}, 1000);
+			}, 200);
 			snakeGame.UpdateSnake();
 			snakeGame.UpdateRender();
 		}

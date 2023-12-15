@@ -1,0 +1,15 @@
+﻿@page "/arrays"
+
+<PageTitle>@title</PageTitle>
+
+<h1>@title</h1>
+
+This code generates an array in range @("<-10; 10>"), then finds min and max and swaps the numbers in a new array.
+
+<pre><code>@(textOut)</code></pre>
+
+<button class="btn btn-primary" @onclick="update">Update</button>
+
+@code {
+	private string title = "C# Arrays test";
+}

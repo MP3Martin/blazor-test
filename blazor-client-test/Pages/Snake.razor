@@ -1,0 +1,45 @@
+﻿@page "/snake"
+
+<PageTitle>@title</PageTitle>
+
+<div>
+		<h1 style="display: inline;">@title</h1>
+	<p style="display: inline-block; margin-left:0.7rem; font-size: 0.8rem; vertical-align: middle;">Without snake-to-snake collisions because there is no ending screen.</p>
+</div>
+
+
+<pre><code>@(textOut)</code></pre>
+
+@* <button class="btn btn-primary" @onclick="update">Update</button> *@
+
+<div class="snake-grid-container">
+	@for (int j = 0; j < snakeGame.snakeArray.GetLength(1); j++) {
+		@for (int i = 0; i < snakeGame.snakeArray.GetLength(0); i++) {
+			int valueData = snakeGame.snakeArray[i, j];
+			var colors = new Dictionary<int, string> { 
+				{ 0, "#393939" },
+	            { 1, "#919191" },
+				{ 2, "white" },
+				{ 3, "#00d500" }
+			};
+			string color = colors[valueData];
+			<div style="background-color: @(color) !important;" id="snake-item-@(i)-@(j)" />
+		}
+	}
+</div>
+
+<input @onkeydown="UpdateLastKey" id="snake_control_input" />
+<div style="margin-bottom: 1rem;" />
+
+<style>
+	:root {
+		--snake-array-size: @(snakeArraySize);
+	}
+</style>
+
+@code {
+	private string title = "Snake";
+	protected override void OnInitialized() {
+		OnPageLoad();
+	}
+}

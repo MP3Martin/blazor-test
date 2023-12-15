@@ -23,6 +23,9 @@ jobs:
     - name: Publish application
       run: dotnet publish -c Release
     
+    - run: pwd
+    - run: dir ${{ env.PUBLISH_DIR }}
+
     # base href url value should be changed so that resources like CSS and scripts can load properly. 
     - name: Rewrite base href
       if: success()

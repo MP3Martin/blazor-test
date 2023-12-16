@@ -1,16 +1,14 @@
-﻿@page "/snake"
+﻿@page "/snake/{sizeParam:int?}"
 
 <PageTitle>@title</PageTitle>
 
 <div>
-		<h1 style="display: inline;">@title</h1>
-	<p style="display: inline-block; margin-left:0.7rem; font-size: 0.8rem; vertical-align: middle;">Without snake-to-snake collisions because there is no ending screen.</p>
+	<h1 style="display: inline;">@title</h1>
+	<p style="display: inline-block; margin-left:0.7rem; font-size: 0.8rem; vertical-align: middle;">Without snake-to-snake collisions because there is no ending screen. Go to @("\".../snake/x\"") where x is a number to set the snake game size.</p>
 </div>
 
 
 <pre><code>@(textOut)</code></pre>
-
-@* <button class="btn btn-primary" @onclick="update">Update</button> *@
 
 <div class="snake-grid-container">
 	@for (int j = 0; j < snakeGame.snakeArray.GetLength(1); j++) {
@@ -39,7 +37,12 @@
 
 @code {
 	private string title = "Snake";
+	[Parameter]
+	public int? sizeParam { get; set; }
 	protected override void OnInitialized() {
-		OnPageLoad();
+		if (sizeParam != null)
+			sizeParam = Math.Max(3, (int)sizeParam);
+		var data = new { size = sizeParam };
+		OnPageLoad(data);
 	}
 }

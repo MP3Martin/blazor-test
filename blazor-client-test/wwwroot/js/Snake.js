@@ -6,10 +6,17 @@
 
 focusInterval = setInterval(() => {
   try {
-    document.getElementById('snake_control_input').focus();
-  } catch (e) { }
+      document.getElementById('snake_control_input').focus();
+    } catch (e) { }
 }, 50);
-document.getElementById('snake_control_input').addEventListener('focusout', () => {
-  document.getElementById('snake_control_input').focus();
-});
-clearInterval(focusInterval);
+
+onPageLoad = () => {
+    setTimeout(() => {
+        document.getElementById('snake_control_input').addEventListener('focusout', () => {
+            setTimeout(() => {
+                document.getElementById('snake_control_input').focus();
+            }, 1);
+        });
+        document.getElementById('snake_control_input').focus();
+    }, 10);
+}

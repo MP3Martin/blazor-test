@@ -1,4 +1,5 @@
 ﻿@page "/snake/{sizeParam:int?}"
+@inject IJSRuntime JS
 @using static Snake.SnakeGame;
 
 <PageTitle>@title</PageTitle>
@@ -45,5 +46,6 @@
 			sizeParam = Math.Max(3, (int)sizeParam);
 		var data = new { size = sizeParam };
 		OnPageLoad(data);
+		JS.InvokeVoidAsync("onPageLoad");
 	}
 }

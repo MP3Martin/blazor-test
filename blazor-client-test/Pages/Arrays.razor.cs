@@ -7,7 +7,9 @@ namespace blazor_client_test.Pages {
 		public IJSRuntime? JSRuntime { get; set; }
 		private string textOut = "";
 		private async void update() {
+#pragma warning disable CS8604
 			await JSRuntime.InvokeVoidAsync("console.log", "test123");
+#pragma warning restore CS8604
 			textOut = "";
 			int size = 10;
 			int[] nums = new int[size];
@@ -44,7 +46,7 @@ namespace blazor_client_test.Pages {
 				textOut += (" | ");
 			}
 			textOut = "\n" + textOut;
-   InvokeAsync(StateHasChanged);
+			_ = InvokeAsync(StateHasChanged);
 		}
 
 	}

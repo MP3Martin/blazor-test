@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
-
 namespace blazor_client_test.Pages {
 	public partial class Snake {
 		[Inject]
 		public IJSRuntime? JSRuntime { get; set; }
 		[Inject]
 		public NavigationManager? NavigationManager { get; set; }
+
 
 		private static string textOut = "";
 		private static int snakeArraySize = 30;
@@ -44,32 +44,36 @@ namespace blazor_client_test.Pages {
 			JSRuntime?.InvokeVoidAsync("clearSnakeControlInput");
 		}
 
-		private class SnakeGame {
+		public class SnakeGame {
 			[Inject]
 			public IJSRuntime? JSRuntime { get; set; }
 
-			private static (int, int) gameSize = (0, 0);
-			public SnakeGame((int, int)? aGameSize = null) {
-				gameSize = aGameSize == null ? (snakeArraySize, snakeArraySize) : ((int, int))aGameSize;
-				snakeArray = new int[gameSize.Item1, gameSize.Item2];
+			private static Coords gameSize = new Coords(0, 0);
+			public enum SnakeData {
+				Air = 0, Snake = 1, SnakeHead = 2, Food = 3
+			};
+			public record struct Coords(int x, int y);
+
+			public SnakeGame(Coords? aGameSize = null) {
+				gameSize = (aGameSize == null) ? (new Coords(snakeArraySize, snakeArraySize)) : ((Coords)aGameSize);
+				snakeArray = new SnakeData[gameSize.x, gameSize.y];
 				try {
-					int initialSnakeSize = Math.Max(1, (int)(gameSize.Item2 * 0.2));
+					int initialSnakeSize = Math.Max(1, (int)(gameSize.y * 0.2));
 					for (int i = 0; i < initialSnakeSize; i++) {
-						snakeCoordsList.Add(((gameSize.Item1 / 2, (int)(gameSize.Item2 / 1.5) - i), (i == initialSnakeSize - 1) ? 2 : 1));
+						snakeCoordsList.Add((new Coords(gameSize.x / 2, (int)(gameSize.y / 1.5) - i), (i == initialSnakeSize - 1) ? SnakeData.SnakeHead : SnakeData.Snake));
 					}
 				} catch (Exception) { }
 				CreateFood();
 			}
-			public int[,] snakeArray = new int[gameSize.Item1, gameSize.Item2];
+			public SnakeData[,] snakeArray = new SnakeData[gameSize.x, gameSize.y];
 			// ((snakeX, snakeY), data)
-			// data: 1 = snake, 2 = snake head, 3 = food
-			private List<((int, int), int)> snakeCoordsList = new();
+			private List<(Coords coords, SnakeData data)> snakeCoordsList = new();
 			public char lastKey = 'w';
 			private void CreateFood(int attempts = 1) {
 				(int, int) FindPosSlow() {
 					for (int j = 0; j < snakeArray.GetLength(1); j++) {
 						for (int i = 0; i < snakeArray.GetLength(0); i++) {
-							if (!snakeCoordsList.Where(x => x.Item1 == (i, j)).Any()) {
+							if (!snakeCoordsList.Where(x => x.coords == new Coords(i, j)).Any()) {
 								return (i, j);
 							}
 						}
@@ -78,30 +82,30 @@ namespace blazor_client_test.Pages {
 				}
 
 				// find random pos
-				int randX = new Random().Next(0, gameSize.Item1);
-				int randY = new Random().Next(0, gameSize.Item2);
+				int randX = new Random().Next(0, gameSize.x);
+				int randY = new Random().Next(0, gameSize.y);
 
-				if (attempts > (Math.Max(gameSize.Item1, gameSize.Item2) * 7)) {
+				if (attempts > (Math.Max(gameSize.x, gameSize.y) * 7)) {
 					PlaceFoodError?.Invoke(1);
 					return;
-				} else if (attempts > Math.Max(gameSize.Item1, gameSize.Item2) * 2) {
+				} else if (attempts > Math.Max(gameSize.x, gameSize.y) * 2) {
 					// slow method to place food if too many attempts
 					(randX, randY) = FindPosSlow();
 				}
 
 				// check if the random pos is empty, recursively retry if not
-				if (!snakeCoordsList.Where(x => x.Item1 == (randX, randY)).Any()) {
-					snakeCoordsList.Add(((randX, randY), 3));
+				if (!snakeCoordsList.Where(x => x.coords == new Coords(randX, randY)).Any()) {
+					snakeCoordsList.Add((new Coords(randX, randY), SnakeData.Food));
 					UpdateRender();
 				} else {
 					CreateFood(attempts + 1);
 				}
 			}
 
-			private string HandleHit((int, int) coords) {
-				int coordData = snakeCoordsList.Where(x => x.Item1 == coords).First().Item2;
+			private string HandleHit(Coords coords) {
+				SnakeData coordData = snakeCoordsList.Where(x => x.coords == coords).First().data;
 				string strOut = "";
-				if (coordData == 3) strOut += "eatFood,";
+				if (coordData == SnakeData.Food) strOut += "eatFood,";
 				return strOut;
 			}
 
@@ -114,58 +118,52 @@ namespace blazor_client_test.Pages {
 						updateSnakeTimer.Start();
 					} catch (Exception) { }
 				}
-				var prevHeadCoords = snakeCoordsList.Where(x => x.Item2 == 2).First().Item1;
+				var prevHeadCoords = snakeCoordsList.Where(x => x.data == SnakeData.SnakeHead).First().coords;
 
 				// calculate new head coords
-				var directions = new Dictionary<char, (int, int)> {
-					{ 'w', (0, -1)},
-					{ 'a', (-1, 0)},
-					{ 's', (0, 1)},
-					{ 'd', (1, 0)}
+				var directions = new Dictionary<char, Coords> {
+					{ 'w', new Coords(0, -1)},
+					{ 'a', new Coords(-1, 0)},
+					{ 's', new Coords(0, 1)},
+					{ 'd', new Coords(1, 0)}
 				};
 				var direction = directions[lastKey];
-				var newCoords = (prevHeadCoords.Item1 + direction.Item1, prevHeadCoords.Item2 + direction.Item2);
-				if (newCoords.Item1 >= gameSize.Item1) {
-					newCoords.Item1 = 0;
-				} else if (newCoords.Item2 >= gameSize.Item2) {
-					newCoords.Item2 = 0;
-				} else if (newCoords.Item1 < 0) {
-					newCoords.Item1 = gameSize.Item1 - 1;
-				} else if (newCoords.Item2 < 0) {
-					newCoords.Item2 = gameSize.Item2 - 1;
+				var newCoords = new Coords(prevHeadCoords.x + direction.x, prevHeadCoords.y + direction.y);
+				if (newCoords.x >= gameSize.x) {
+					newCoords.x = 0;
+				} else if (newCoords.y >= gameSize.y) {
+					newCoords.y = 0;
+				} else if (newCoords.x < 0) {
+					newCoords.x = gameSize.x - 1;
+				} else if (newCoords.y < 0) {
+					newCoords.y = gameSize.y - 1;
 				}
 
 				string hitDataOutput = "";
-				if (snakeCoordsList.Where(x => x.Item1 == newCoords).Any())
+				if (snakeCoordsList.Where(x => x.coords == newCoords).Any())
 					hitDataOutput = HandleHit(newCoords);
 
 
 				// replace old head with snake
-				snakeCoordsList.Remove((prevHeadCoords, 2));
-				snakeCoordsList.Add((prevHeadCoords, 1));
+				snakeCoordsList.Remove((prevHeadCoords, SnakeData.SnakeHead));
+				snakeCoordsList.Add((prevHeadCoords, SnakeData.Snake));
 				// remove last snake bit (only if snake didn't eat food)
 				if (!hitDataOutput.Contains("eatFood"))
-					snakeCoordsList.Remove(snakeCoordsList.Where(x => x.Item2 == 1).First());
+					snakeCoordsList.Remove(snakeCoordsList.Where(x => x.data == SnakeData.Snake).First());
 
 				// add the new head
-				snakeCoordsList.Add((newCoords, 2));
+				snakeCoordsList.Add((newCoords, SnakeData.SnakeHead));
 
 				if (hitDataOutput.Contains("eatFood")) {
-					snakeCoordsList.RemoveAll(x => x.Item2 == 3);
+					snakeCoordsList.RemoveAll(x => x.data == SnakeData.Food);
 					CreateFood();
 				}
 
 				// update the snakeArray with snakeCoordsList
-				snakeArray = new int[gameSize.Item1, gameSize.Item2];
+				snakeArray = new SnakeData[gameSize.x, gameSize.y];
 				foreach (var item in snakeCoordsList) {
 					// rendering order from most to least important
-					if (item.Item2 == 2) {
-						snakeArray[item.Item1.Item1, item.Item1.Item2] = 2;
-					} else if (item.Item2 == 1) {
-						snakeArray[item.Item1.Item1, item.Item1.Item2] = 1;
-					} else if (item.Item2 == 3) {
-						snakeArray[item.Item1.Item1, item.Item1.Item2] = 3;
-					}
+					snakeArray[item.coords.x, item.coords.y] = item.data;
 				}
 			}
 			public System.Timers.Timer updateSnakeTimer = new();
@@ -174,12 +172,11 @@ namespace blazor_client_test.Pages {
 
 		private SnakeGame snakeGame = new();
 		private void OnPageLoad(dynamic pageLoadData) {
-			(int, int) gameSize = (snakeArraySize, snakeArraySize);
 			if (pageLoadData.size != null) {
 				snakeArraySize = pageLoadData.size;
 			}
 
-			snakeGame = new SnakeGame((snakeArraySize, snakeArraySize));
+			snakeGame = new SnakeGame(new SnakeGame.Coords(snakeArraySize, snakeArraySize));
 			snakeGame.UpdateRender = () => { InvokeAsync(StateHasChanged); };
 			snakeGame.updateSnakeTimer = App.CreateTimer(() => {
 				snakeGame.UpdateSnake();

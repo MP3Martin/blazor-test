@@ -1,4 +1,5 @@
 ﻿@page "/snake/{sizeParam:int?}"
+@using static Snake.SnakeGame;
 
 <PageTitle>@title</PageTitle>
 
@@ -13,12 +14,12 @@
 <div class="snake-grid-container">
 	@for (int j = 0; j < snakeGame.snakeArray.GetLength(1); j++) {
 		@for (int i = 0; i < snakeGame.snakeArray.GetLength(0); i++) {
-			int valueData = snakeGame.snakeArray[i, j];
-			var colors = new Dictionary<int, string> { 
-				{ 0, "#393939" },
-	            { 1, "#919191" },
-				{ 2, "white" },
-				{ 3, "#00d500" }
+			SnakeData valueData = snakeGame.snakeArray[i, j];
+			var colors = new Dictionary<SnakeData, string> {
+				{ SnakeData.Air, "#393939" },
+				{ SnakeData.Snake, "#919191" },
+				{ SnakeData.SnakeHead, "white" },
+				{ SnakeData.Food, "#00d500" }
 			};
 			string color = colors[valueData];
 			<div style="background-color: @(color) !important;" id="snake-item-@(i)-@(j)" />

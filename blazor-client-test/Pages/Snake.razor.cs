@@ -8,7 +8,7 @@ namespace blazor_client_test.Pages {
 		public IJSRuntime? JSRuntime { get; set; }
 		[Inject]
 		public NavigationManager? NavigationManager { get; set; }
-
+		public record struct Coords(int x, int y);
 
 		private static string textOut = "";
 		private static int snakeArraySize = 30;
@@ -52,7 +52,6 @@ namespace blazor_client_test.Pages {
 			public enum SnakeData {
 				Air = 0, Snake = 1, SnakeHead = 2, Food = 3
 			};
-			public record struct Coords(int x, int y);
 
 			public SnakeGame(Coords? aGameSize = null) {
 				gameSize = (aGameSize == null) ? (new Coords(snakeArraySize, snakeArraySize)) : ((Coords)aGameSize);
@@ -114,8 +113,8 @@ namespace blazor_client_test.Pages {
 			public void UpdateSnake(bool manual = false) {
 				if (manual) {
 					try {
-						updateSnakeTimer.Stop();
-						updateSnakeTimer.Start();
+						UpdateSnakeTimer.Stop();
+						UpdateSnakeTimer.Start();
 					} catch (Exception) { }
 				}
 				var prevHeadCoords = snakeCoordsList.Where(x => x.data == SnakeData.SnakeHead).First().coords;
@@ -162,11 +161,10 @@ namespace blazor_client_test.Pages {
 				// update the snakeArray with snakeCoordsList
 				snakeArray = new SnakeData[gameSize.x, gameSize.y];
 				foreach (var item in snakeCoordsList) {
-					// rendering order from most to least important
 					snakeArray[item.coords.x, item.coords.y] = item.data;
 				}
 			}
-			public System.Timers.Timer updateSnakeTimer = new();
+			public System.Timers.Timer UpdateSnakeTimer = new();
 			public Action<int>? PlaceFoodError;
 		}
 
@@ -176,17 +174,19 @@ namespace blazor_client_test.Pages {
 				snakeArraySize = pageLoadData.size;
 			}
 
-			snakeGame = new SnakeGame(new SnakeGame.Coords(snakeArraySize, snakeArraySize));
-			snakeGame.UpdateRender = () => { InvokeAsync(StateHasChanged); };
-			snakeGame.updateSnakeTimer = App.CreateTimer(() => {
-				snakeGame.UpdateSnake();
-				snakeGame.UpdateRender();
-			}, Math.Min(210, Math.Max(1, (int)(210 + ((float)(60 - 210) / (150 - 30)) * (snakeArraySize - 30)))));
-			snakeGame.PlaceFoodError = (int returnVal) => {
-				if (returnVal == 1) {
-					NavigationManager?.NavigateTo(NavigationManager.Uri, true);
+			snakeGame = new SnakeGame(new Coords(snakeArraySize, snakeArraySize)) {
+				UpdateRender = () => { InvokeAsync(StateHasChanged); },
+				UpdateSnakeTimer = App.CreateTimer(() => {
+					snakeGame.UpdateSnake();
+					snakeGame.UpdateRender();
+				}, Math.Min(210, Math.Max(1, (int)(210 + ((float)(60 - 210) / (150 - 30)) * (snakeArraySize - 30))))),
+				PlaceFoodError = (int returnVal) => {
+					if (returnVal == 1) {
+						NavigationManager?.NavigateTo(NavigationManager.Uri, true);
+					}
 				}
 			};
+
 			snakeGame.UpdateSnake();
 			snakeGame.UpdateRender();
 		}

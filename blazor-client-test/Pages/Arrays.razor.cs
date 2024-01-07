@@ -48,6 +48,5 @@ namespace blazor_client_test.Pages {
 			textOut = "\n" + textOut;
 			_ = InvokeAsync(StateHasChanged);
 		}
-
 	}
 }
